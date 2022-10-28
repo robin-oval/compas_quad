@@ -88,11 +88,11 @@ class CoarseQuadMesh(QuadMesh):
 
         # store density attribute from input dense quad mesh
         if attribute_density:
-            coarse_quad_mesh.set_strips_density(1)
+            coarse_quad_mesh.strips_density(1)
             for skey in coarse_quad_mesh.strips():
                 u, v = coarse_quad_mesh.strip_edges(skey)[0]
                 d = len(coarse_edges_children.get((u, v), coarse_edges_children.get((v, u), [])))
-                coarse_quad_mesh.set_strip_density(skey, d)
+                coarse_quad_mesh.strip_density(skey, d)
 
         # store quad mesh and use as polygonal mesh
         coarse_quad_mesh.set_quad_mesh(quad_mesh)
@@ -104,17 +104,16 @@ class CoarseQuadMesh(QuadMesh):
     # meshes getters and setters
     # --------------------------------------------------------------------------
 
-    def get_quad_mesh(self):
+    def dense_mesh(self, quad_mesh=None):
+        if quad_mesh:
+            self.attributes['quad_mesh'] = quad_mesh
         return self.attributes['quad_mesh']
 
-    def set_quad_mesh(self, quad_mesh):
-        self.attributes['quad_mesh'] = quad_mesh
+    # def get_polygonal_mesh(self):
+    #     return self.attributes['polygonal_mesh']
 
-    def get_polygonal_mesh(self):
-        return self.attributes['polygonal_mesh']
-
-    def set_polygonal_mesh(self, polygonal_mesh):
-        self.attributes['polygonal_mesh'] = polygonal_mesh
+    # def set_polygonal_mesh(self, polygonal_mesh):
+    #     self.attributes['polygonal_mesh'] = polygonal_mesh
 
     # --------------------------------------------------------------------------
     # element child-parent relation getters
@@ -128,61 +127,42 @@ class CoarseQuadMesh(QuadMesh):
     # density getters and setters
     # --------------------------------------------------------------------------
 
-    def get_strip_density(self, skey):
-        """Get the density of a strip.
+    def strip_density(self, skey, d=None):
+        """Get or set the densty of one strip.
 
         Parameters
         ----------
         skey : hashable
             A strip key.
+        d : int
+            A density parameter.
 
         Returns
-        ----------
+        -------
         int
-            The strip density.
+            The density parameter.
         """
+        if d:
+            self.attributes['strips_density'][skey] = d
         return self.attributes['strips_density'][skey]
+        
+    def strips_density(self, d=None):
+        """Get or set the density of all the strips.
 
-    def get_strip_densities(self):
-        """Get the density of a strip.
+        Parameters
+        ----------
+        d : int, optional
+            A density parameter.
 
         Returns
-        ----------
+        -------
         dict
-            The dictionary of the strip densities.
+
         """
+        if d:
+            for skey in self.strips():
+                self.strip_density(skey, d)
         return self.attributes['strips_density']
-
-    # --------------------------------------------------------------------------
-    # density setters
-    # --------------------------------------------------------------------------
-
-    def set_strip_density(self, skey, d):
-        """Set the densty of one strip.
-
-        Parameters
-        ----------
-        skey : hashable
-            A strip key.
-        d : int
-            A density parameter.
-        """
-        self.attributes['strips_density'][skey] = d
-
-    def set_strips_density(self, d, skeys=None):
-        """Set the same density to all strips.
-
-        Parameters
-        ----------
-        d : int
-            A density parameter.
-        skeys : list, None
-            The keys of strips to set density. If is None, all strips are considered.
-        """
-        if skeys is None:
-            skeys = self.strips()
-        for skey in skeys:
-            self.set_strip_density(skey, d)
 
     def set_strip_density_target(self, skey, t):
         """Set the strip densities based on a target length and the average length of the strip edges.
@@ -194,7 +174,7 @@ class CoarseQuadMesh(QuadMesh):
         t : float
             A target length.
         """
-        self.set_strip_density(skey, int(ceil(vector_average([self.edge_length(u, v) for u, v in self.strip_edges(skey) if u != v]) / t)))
+        self.strip_density(skey, int(ceil(vector_average([self.edge_length(u, v) for u, v in self.strip_edges(skey) if u != v]) / t)))
 
     def set_strip_density_func(self, skey, func, func_args):
         """Set the strip densities based on a function.
@@ -204,7 +184,7 @@ class CoarseQuadMesh(QuadMesh):
         skey : hashable
             A strip key.
         """
-        self.set_strip_density(skey, int(func(skey, func_args)))
+        self.strip_density(skey, int(func(skey, func_args)))
 
     def set_strips_density_target(self, t, skeys=None):
         """Set the strip densities based on a target length and the average length of the strip edges.
@@ -247,7 +227,7 @@ class CoarseQuadMesh(QuadMesh):
             n = int(floor(n))
         else:
             n = int(ceil(n))
-        self.set_strips_density(n)
+        self.strips_density(n)
 
     # --------------------------------------------------------------------------
     # densification
@@ -264,12 +244,12 @@ class CoarseQuadMesh(QuadMesh):
 
         face_meshes = {}
         for fkey in self.faces():
-            ab, bc, cd, da = [[self.edge_point(u, v, float(i) / float(self.get_strip_density(edge_strip[(u, v)])))
-                               for i in range(0, self.get_strip_density(edge_strip[(u, v)]) + 1)] for u, v in self.face_halfedges(fkey)]
+            ab, bc, cd, da = [[self.edge_point(u, v, float(i) / float(self.strip_density(edge_strip[(u, v)])))
+                               for i in range(0, self.strip_density(edge_strip[(u, v)]) + 1)] for u, v in self.face_halfedges(fkey)]
             vertices, faces = discrete_coons_patch(ab, bc, list(reversed(cd)), list(reversed(da)))
             face_meshes[fkey] = QuadMesh.from_vertices_and_faces(vertices, faces)
 
-        self.set_quad_mesh(meshes_join_and_weld(list(face_meshes.values())))
+        self.dense_mesh(meshes_join_and_weld(list(face_meshes.values())))
 
     # def geometrical_densification(self):
     # 	"""Generate a denser quad mesh from the coarse quad mesh and its strip densities.
@@ -298,7 +278,7 @@ class CoarseQuadMesh(QuadMesh):
     # 	new_edge_polyline = {}
 
     # 	for u, v in self.edges():
-    # 		d =  self.get_strip_density(self.edge_strip((u, v)))
+    # 		d =  self.strip_density(self.edge_strip((u, v)))
     # 		old_polyline = Polyline([quad_mesh.vertex_coordinates(vkey) for vkey in self.edge_to_polyedge[u][v]])
     # 		new_polyline = [old_polyline.point(float(i) / float(d)) for i in range(0, d + 1)]
     # 		new_edge_polyline[(u, v)] = new_polyline

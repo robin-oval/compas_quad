@@ -7,7 +7,7 @@ from operator import itemgetter
 
 from compas.geometry import centroid_points
 
-from compas.datastructures import Mesh
+from compas_quad.datastructures import Mesh
 
 from compas.utilities import pairwise
 from ..utilities import list_split

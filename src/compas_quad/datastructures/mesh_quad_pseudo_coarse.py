@@ -45,7 +45,7 @@ class CoarsePseudoQuadMesh(PseudoQuadMesh, CoarseQuadMesh):
         for fkey in self.faces():
             polylines = []
             for u, v in self.face_halfedges(fkey):
-                d = self.get_strip_density(edge_strip[u, v])
+                d = self.strip_density(edge_strip[u, v])
 
                 if edges_to_curves:
                     polyline = []

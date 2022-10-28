@@ -13,6 +13,13 @@ class Mesh(Mesh):
     def __init__(self):
         super(Mesh, self).__init__()
 
+    def move(self, vector):
+        x, y, z = vector
+        for vkey, attr in self.vertices(data=True):
+            attr['x'] += x
+            attr['y'] += y
+            attr['z'] += z
+
     # def to_vertices_and_faces(self, keep_keys=True):
 
     #     if keep_keys:
