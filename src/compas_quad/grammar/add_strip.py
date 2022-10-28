@@ -72,7 +72,8 @@ def add_strip(mesh, polyedge):
 
         # add new vertices
         faces = sort_faces(mesh, u1, v, w)
-        v1, v2 = mesh.add_vertex(attr_dict=mesh.vertex[v]), mesh.add_vertex(attr_dict=mesh.vertex[v])
+        v1, v2 = mesh.add_vertex(attr_dict=mesh.vertex[v]), mesh.add_vertex(
+            attr_dict=mesh.vertex[v])
 
         if type(faces[0]) == list:
             faces_1, faces_2 = faces
@@ -130,12 +131,14 @@ def add_strip(mesh, polyedge):
             else:
                 from_vkey = polyedge[i - 1]
                 to_vkey = polyedge[i + 1]
-                updated_polyedge += polyedge_from_to_via_vertices(mesh, from_vkey, to_vkey, via_vkeys)[1:-1]
+                updated_polyedge += polyedge_from_to_via_vertices(
+                    mesh, from_vkey, to_vkey, via_vkeys)[1:-1]
         polyedge = updated_polyedge
 
     # include pseudo closed polyedges
 
-    old_vkeys_to_new_vkeys = {u0: (u1, u2) for u0, u1, u2 in zip(full_updated_polyedge, left_polyedge, right_polyedge)}
+    old_vkeys_to_new_vkeys = {u0: (u1, u2) for u0, u1, u2 in zip(
+        full_updated_polyedge, left_polyedge, right_polyedge)}
 
     # for fkey in mesh.faces():
     #    print(mesh.face_vertices(fkey))
@@ -180,7 +183,8 @@ def update_strip_data(mesh, full_updated_polyedge, old_vkeys_to_new_vkeys):
                     u, v = u, v
                 else:
                     continue
-                new_v = [vkey for vkey in old_vkeys_to_new_vkeys[v] if vkey in mesh.halfedge[u]][0]
+                new_v = [vkey for vkey in old_vkeys_to_new_vkeys[v]
+                         if vkey in mesh.halfedge[u]][0]
                 new_edges = mesh.collect_strip(u, new_v)
                 paral_to_update[skey] = new_edges
                 break
@@ -189,7 +193,8 @@ def update_strip_data(mesh, full_updated_polyedge, old_vkeys_to_new_vkeys):
 
     # self strip
     n = max(mesh.attributes['strips']) + 1
-    strip_edges = [tuple(old_vkeys_to_new_vkeys[vkey]) for vkey in full_updated_polyedge]
+    strip_edges = [tuple(old_vkeys_to_new_vkeys[vkey])
+                   for vkey in full_updated_polyedge]
     mesh.attributes['strips'][n] = strip_edges
 
     return n
@@ -249,7 +254,8 @@ def adjacency_from_to_via_vertices(mesh, from_vkey, to_vkey, via_vkeys):
 def polyedge_from_to_via_vertices(mesh, from_vkey, to_vkey, via_vkeys):
     # return shortest polyedge from_vkey to_vkey via_vkeys
 
-    adjacency = adjacency_from_to_via_vertices(mesh, from_vkey, to_vkey, via_vkeys)
+    adjacency = adjacency_from_to_via_vertices(
+        mesh, from_vkey, to_vkey, via_vkeys)
     return next(breadth_first_paths(adjacency, from_vkey, to_vkey))
 
 

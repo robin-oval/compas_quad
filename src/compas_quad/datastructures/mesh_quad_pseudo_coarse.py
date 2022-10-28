@@ -13,7 +13,7 @@ from .mesh_quad_coarse import CoarseQuadMesh
 from compas.utilities import pairwise, geometric_key, linspace
 
 
-__all__ = [	'CoarsePseudoQuadMesh']
+__all__ = ['CoarsePseudoQuadMesh']
 
 
 class CoarsePseudoQuadMesh(PseudoQuadMesh, CoarseQuadMesh):
@@ -39,7 +39,8 @@ class CoarsePseudoQuadMesh(PseudoQuadMesh, CoarseQuadMesh):
                 edge_strip[u, v] = strip
                 edge_strip[v, u] = strip
 
-        pole_map = [geometric_key(self.vertex_coordinates(pole)) for pole in self.poles()]
+        pole_map = [geometric_key(self.vertex_coordinates(pole))
+                    for pole in self.poles()]
 
         meshes = []
         for fkey in self.faces():
@@ -58,7 +59,8 @@ class CoarsePseudoQuadMesh(PseudoQuadMesh, CoarseQuadMesh):
                         polyline[:] = polyline[::-1]
                 else:
                     polyline = []
-                    curve = Polyline([self.vertex_coordinates(u), self.vertex_coordinates(v)])
+                    curve = Polyline(
+                        [self.vertex_coordinates(u), self.vertex_coordinates(v)])
                     for i in range(0, d + 1):
                         point = curve.point(float(i) / float(d))
                         polyline.append(point)
@@ -83,8 +85,10 @@ class CoarsePseudoQuadMesh(PseudoQuadMesh, CoarseQuadMesh):
                 ad = None
 
             vertices, faces = discrete_coons_patch(ab, bc, dc, ad)
-            faces = [[u for u, v in pairwise(face + face[:1]) if u != v] for face in faces]
-            mesh = PseudoQuadMesh.from_vertices_and_faces_with_face_poles(vertices, faces)
+            faces = [[u for u, v in pairwise(
+                face + face[:1]) if u != v] for face in faces]
+            mesh = PseudoQuadMesh.from_vertices_and_faces_with_face_poles(
+                vertices, faces)
             meshes.append(mesh)
 
         face_pole_map = {}
@@ -92,7 +96,8 @@ class CoarsePseudoQuadMesh(PseudoQuadMesh, CoarseQuadMesh):
             for fkey in mesh.faces():
                 for u, v in pairwise(mesh.face_vertices(fkey) + mesh.face_vertices(fkey)[: 1]):
                     if geometric_key(mesh.vertex_coordinates(u)) in pole_map and geometric_key(mesh.vertex_coordinates(u)) == geometric_key(mesh.vertex_coordinates(v)):
-                        face_pole_map[geometric_key(mesh.face_center(fkey))] = geometric_key(mesh.vertex_coordinates(u))
+                        face_pole_map[geometric_key(mesh.face_center(fkey))] = geometric_key(
+                            mesh.vertex_coordinates(u))
                         break
 
         self.set_quad_mesh(meshes_join_and_weld(meshes))

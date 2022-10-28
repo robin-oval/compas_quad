@@ -82,10 +82,10 @@ def quad_mesh_polyedge_2_coloring(quad_mesh, skip_singularities=True, edge_outpu
 
     vertices, edges = quad_mesh.polyedge_graph(skip_singularities)
     polyedge_coloring = is_adjacency_two_colorable(adjacency_from_edges(edges))
-    
+
     if not polyedge_coloring or not edge_output:
         return polyedge_coloring
-    
+
     else:
         edge_coloring = {}
         for pkey, group in polyedge_coloring.items():
@@ -178,32 +178,37 @@ def dense_quad_mesh_polyedge_2_coloring(quad_mesh):
     coarse_skey_to_color = quad_mesh_strip_2_coloring(coarse_quad_mesh)
 
     # get coarse edge color
-    coarse_edge_to_color = {edge: coarse_skey_to_color[skey] for skey in coarse_quad_mesh.strips() for edge in coarse_quad_mesh.strip_edges(skey)}
+    coarse_edge_to_color = {edge: coarse_skey_to_color[skey] for skey in coarse_quad_mesh.strips(
+    ) for edge in coarse_quad_mesh.strip_edges(skey)}
 
     # get dense polyedge color
-    dense_polyedge_to_color = {tuple(coarse_quad_mesh.attributes['edge_coarse_to_dense'][u][v]): color for (u, v), color in coarse_edge_to_color.items()}
+    dense_polyedge_to_color = {tuple(coarse_quad_mesh.attributes['edge_coarse_to_dense'][u][v]): color for (
+        u, v), color in coarse_edge_to_color.items()}
 
     # get some dense edge color
-    some_dense_edge_to_color = {edge: color for polyedge, color in dense_polyedge_to_color.items() for edge in pairwise(polyedge)}
+    some_dense_edge_to_color = {edge: color for polyedge,
+                                color in dense_polyedge_to_color.items() for edge in pairwise(polyedge)}
 
     # get strip color
     dense_strip_to_color = {}
     for skey in quad_mesh.strips():
         for u, v in quad_mesh.strip_edges(skey):
-            color = some_dense_edge_to_color.get((u, v), some_dense_edge_to_color.get((v, u), None))
+            color = some_dense_edge_to_color.get(
+                (u, v), some_dense_edge_to_color.get((v, u), None))
             if color is not None:
                 dense_strip_to_color[skey] = color
                 break
 
     # get edge color
-    all_dense_edge_to_color = {edge: color for skey, color in dense_strip_to_color.items() for edge in quad_mesh.strip_edges(skey)}
+    all_dense_edge_to_color = {edge: color for skey, color in dense_strip_to_color.items(
+    ) for edge in quad_mesh.strip_edges(skey)}
 
     # get polyedge color
     dense_polyedge_to_color = {}
     for pkey, polyedge in quad_mesh.polyedges(data=True):
         u, v = polyedge[:2]
-        color = all_dense_edge_to_color.get((u, v), all_dense_edge_to_color.get((v, u), None))
+        color = all_dense_edge_to_color.get(
+            (u, v), all_dense_edge_to_color.get((v, u), None))
         dense_polyedge_to_color[pkey] = color
 
     return dense_polyedge_to_color
-

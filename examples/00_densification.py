@@ -43,7 +43,7 @@ viewer.add(dense)
 skey = list(coarse.strips())[0]
 coarse.strip_density(skey, 10)
 coarse.densification()
-	
+
 # plot dense quad mesh
 dense = coarse.dense_mesh()
 dense.move(scale_vector(vector, 3))

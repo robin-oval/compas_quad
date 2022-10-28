@@ -33,7 +33,8 @@ class PseudoQuadMesh(QuadMesh):
         if 'compas' in data:
             version = LooseVersion(compas.__version__)
             if version < LooseVersion('0.16.5'):
-                raise Exception('The data was generated with an incompatible newer version of COMPAS: {}'.format(version.vstring.split('-')[0]))
+                raise Exception('The data was generated with an incompatible newer version of COMPAS: {}'.format(
+                    version.vstring.split('-')[0]))
             # dtype = data['dtype']
             data = data['data']
             attributes = data['attributes']
@@ -233,7 +234,8 @@ class PseudoQuadMesh(QuadMesh):
 
         """
 
-        edges = [(u, v) if self.halfedge[u][v] is not None else (v, u) for u, v in self.edges()]
+        edges = [(u, v) if self.halfedge[u][v] is not None else (v, u)
+                 for u, v in self.edges()]
 
         nb_strip = -1
         while len(edges) > 0:
@@ -322,13 +324,16 @@ class PseudoQuadMesh(QuadMesh):
                 else:
                     return 1.0
             else:
-                adapted_valency = sum([not self.is_face_pseudo_quad(fkey) for fkey in self.vertex_faces(vkey)])
+                adapted_valency = sum([not self.is_face_pseudo_quad(
+                    fkey) for fkey in self.vertex_faces(vkey)])
                 if self.is_vertex_on_boundary(vkey):
                     adapted_valency += 1
-                regular_valency = 4.0 if not self.is_vertex_on_boundary(vkey) else 3.0
+                regular_valency = 4.0 if not self.is_vertex_on_boundary(
+                    vkey) else 3.0
                 return (regular_valency - adapted_valency) / 4.0
         else:
-            regular_valency = 4.0 if not self.is_vertex_on_boundary(vkey) else 3.0
+            regular_valency = 4.0 if not self.is_vertex_on_boundary(
+                vkey) else 3.0
             return (regular_valency - self.vertex_degree(vkey)) / 4.0
 
     def strip_faces(self, skey):
@@ -415,7 +420,8 @@ class PseudoQuadMesh(QuadMesh):
 
         # get intersections between polyedges for split
         vertices = [vkey for polyedge in polyedges for vkey in set(polyedge)]
-        split_vertices = [vkey for vkey in self.vertices() if vertices.count(vkey) > 1]
+        split_vertices = [
+            vkey for vkey in self.vertices() if vertices.count(vkey) > 1]
 
         # split singularity polyedges
         return [split_polyedge for polyedge in polyedges

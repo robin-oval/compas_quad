@@ -66,7 +66,8 @@ class TwoColorer(object):
 
             for combination in current_pool:
                 if len(combination) > 1:
-                    combination = list(set([i for item in combination for i in item]))
+                    combination = list(
+                        set([i for item in combination for i in item]))
                 else:
                     combination = list(set(combination))
 
@@ -84,13 +85,17 @@ class TwoColorer(object):
 
                 # delete strip vertices in network and check colourability
                 else:
-                    new_vertices = {vkey: xyz for vkey, xyz in vertices.items() if vkey not in combination}
-                    new_edges = [(u, v) for u, v in edges if u not in combination and v not in combination]
-                    two_colourability = is_adjacency_two_colorable(adjacency_from_edges(new_edges))
+                    new_vertices = {
+                        vkey: xyz for vkey, xyz in vertices.items() if vkey not in combination}
+                    new_edges = [
+                        (u, v) for u, v in edges if u not in combination and v not in combination]
+                    two_colourability = is_adjacency_two_colorable(
+                        adjacency_from_edges(new_edges))
                     if not two_colourability:
                         next_pool.append(combination)
                     else:
-                        results[tuple(combination)] = (copy_mesh, (new_vertices, new_edges), two_colourability)
+                        results[tuple(combination)] = (
+                            copy_mesh, (new_vertices, new_edges), two_colourability)
 
             current_pool = itertools.combinations(next_pool, 2)
 
@@ -147,7 +152,8 @@ class TwoColorer(object):
 
             for combination in current_pool:
                 if len(combination) > 1:
-                    combination = list(set([i for item in combination for i in item]))
+                    combination = list(
+                        set([i for item in combination for i in item]))
                 else:
                     combination = list(set(combination))
 
@@ -165,13 +171,17 @@ class TwoColorer(object):
 
                 # delete strip vertices in network and check colourability
                 else:
-                    new_vertices = {vkey: xyz for vkey, xyz in vertices.items() if vkey not in combination}
-                    new_edges = [(u, v) for u, v in edges if u not in combination and v not in combination]
-                    two_colourability = is_adjacency_two_colorable(adjacency_from_edges(new_edges))
+                    new_vertices = {
+                        vkey: xyz for vkey, xyz in vertices.items() if vkey not in combination}
+                    new_edges = [
+                        (u, v) for u, v in edges if u not in combination and v not in combination]
+                    two_colourability = is_adjacency_two_colorable(
+                        adjacency_from_edges(new_edges))
                     if not two_colourability:
                         next_pool.append(combination)
                     else:
-                        results[tuple(combination)] = (copy_mesh, (new_vertices, new_edges), two_colourability)
+                        results[tuple(combination)] = (
+                            copy_mesh, (new_vertices, new_edges), two_colourability)
 
             current_pool = itertools.combinations(next_pool, 2)
 
@@ -245,13 +255,17 @@ class TwoColorer(object):
 
                 # delete strip vertices in network and check colourability
                 else:
-                    new_vertices = {vkey: xyz for vkey, xyz in vertices.items() if vkey not in combination}
-                    new_edges = [(u, v) for u, v in edges if u not in combination and v not in combination]
-                    two_colourability = is_adjacency_two_colorable(adjacency_from_edges(new_edges))
+                    new_vertices = {
+                        vkey: xyz for vkey, xyz in vertices.items() if vkey not in combination}
+                    new_edges = [
+                        (u, v) for u, v in edges if u not in combination and v not in combination]
+                    two_colourability = is_adjacency_two_colorable(
+                        adjacency_from_edges(new_edges))
                     if not two_colourability:
                         to_continue = True
                     else:
-                        results[combination] = (copy_mesh, (new_vertices, new_edges), two_colourability)
+                        results[combination] = (
+                            copy_mesh, (new_vertices, new_edges), two_colourability)
                         discarding_combination.append(set(combination))
 
             if not to_continue:
@@ -285,8 +299,8 @@ class TwoColorer(object):
         # # result for input mesh
         # vertices, edges = mesh.strip_graph()
         # if is_adjacency_two_colorable(adjacency_from_edges(edges)) is not None:
-        # 	self.results = True
-        # 	return True
+        #   self.results = True
+        #   return True
 
         results = {}
 
@@ -334,12 +348,14 @@ class TwoColorer(object):
                 # delete strip vertices in network and check colourability
                 else:
                     vertices, edges = copy_mesh.strip_graph()
-                    two_colourability = is_adjacency_two_colorable(adjacency_from_edges(edges))
+                    two_colourability = is_adjacency_two_colorable(
+                        adjacency_from_edges(edges))
                     if not two_colourability:
                         results[combination] = 'not two-colourable'
                         to_continue = True
                     else:
-                        results[combination] = (copy_mesh, (vertices, edges), two_colourability)
+                        results[combination] = (
+                            copy_mesh, (vertices, edges), two_colourability)
 
             if not to_continue:
                 break
@@ -412,7 +428,8 @@ class TwoColorer(object):
                 if len(total_boundary_deletions(mesh, combination)) > 0:
                     results[combination] = 'invalid shape topology'
                     discarding_combination.append(set(combination))
-                    discarding_combination_type[tuple(combination)] = 'invalid shape topology'
+                    discarding_combination_type[tuple(
+                        combination)] = 'invalid shape topology'
 
                 if combination in results:
                     continue
@@ -425,21 +442,27 @@ class TwoColorer(object):
                 if not topological_validity:
                     results[combination] = 'invalid shape topology'
                     discarding_combination.append(set(combination))
-                    discarding_combination_type[tuple(combination)] = 'invalid shape topology'
+                    discarding_combination_type[tuple(
+                        combination)] = 'invalid shape topology'
 
                 # delete strip vertices in network and check colourability
                 else:
                     # vertices, edges = copy_mesh.strip_graph()
-                    new_vertices = {vkey: xyz for vkey, xyz in vertices.items() if vkey not in combination}
-                    new_edges = [(u, v) for u, v in edges if u not in combination and v not in combination]
-                    two_colourability = is_adjacency_two_colorable(adjacency_from_edges(new_edges))
+                    new_vertices = {
+                        vkey: xyz for vkey, xyz in vertices.items() if vkey not in combination}
+                    new_edges = [
+                        (u, v) for u, v in edges if u not in combination and v not in combination]
+                    two_colourability = is_adjacency_two_colorable(
+                        adjacency_from_edges(new_edges))
                     if not two_colourability:
                         results[combination] = 'not two-colourable'
                         to_continue = True
                     else:
-                        results[combination] = (copy_mesh, (new_vertices, new_edges), two_colourability)
+                        results[combination] = (
+                            copy_mesh, (new_vertices, new_edges), two_colourability)
                         discarding_combination.append(set(combination))
-                        discarding_combination_type[tuple(combination)] = 'two-colourable'
+                        discarding_combination_type[tuple(
+                            combination)] = 'two-colourable'
                         at_least_one_valid_k = True
                         total_valid += 1
 

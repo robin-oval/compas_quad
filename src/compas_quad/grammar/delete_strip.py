@@ -54,13 +54,16 @@ def delete_strip(mesh, skey, update_data=True):
     for vertices in disc_vertices:
 
         # new vertex
-        x, y, z = centroid_points([mesh.vertex_coordinates(vkey) for vkey in vertices])
+        x, y, z = centroid_points(
+            [mesh.vertex_coordinates(vkey) for vkey in vertices])
         new_vkey = mesh.add_vertex(attr_dict={'x': x, 'y': y, 'z': z})
-        old_vkeys_to_new_vkeys.update({old_vkey: new_vkey for old_vkey in vertices})
+        old_vkeys_to_new_vkeys.update(
+            {old_vkey: new_vkey for old_vkey in vertices})
 
         # replace the old vertices
         for old_vkey in vertices:
-            _ = mesh_substitute_vertex_in_faces(mesh, old_vkey, new_vkey, mesh.vertex_faces(old_vkey))
+            _ = mesh_substitute_vertex_in_faces(
+                mesh, old_vkey, new_vkey, mesh.vertex_faces(old_vkey))
 
         # delete the old vertices
         for old_vkey in vertices:
@@ -74,9 +77,12 @@ def delete_strip(mesh, skey, update_data=True):
 
 
 def strip_edge_network(mesh, skey):
-    all_strip_vertices = list(set([vkey for edge in mesh.strip_edges(skey) for vkey in edge]))
-    strip_edges = [(u, v) for u, v in mesh.strip_edges(skey) if u != v]  # exception for poles
-    strip_vertices = {vkey: mesh.vertex_coordinates(vkey) for vkey in all_strip_vertices}
+    all_strip_vertices = list(
+        set([vkey for edge in mesh.strip_edges(skey) for vkey in edge]))
+    strip_edges = [(u, v) for u, v in mesh.strip_edges(skey)
+                   if u != v]  # exception for poles
+    strip_vertices = {vkey: mesh.vertex_coordinates(
+        vkey) for vkey in all_strip_vertices}
     return Network.from_nodes_and_edges(strip_vertices, strip_edges)
 
 
@@ -84,7 +90,8 @@ def update_strip_data(mesh, old_vkeys_to_new_vkeys):
     strip_data = mesh.attributes['strips'].copy()
 
     for skey, edges in strip_data.items():
-        new_edges = [tuple([old_vkeys_to_new_vkeys.get(vkey, vkey) for vkey in edge]) for edge in edges]
+        new_edges = [tuple([old_vkeys_to_new_vkeys.get(vkey, vkey)
+                            for vkey in edge]) for edge in edges]
 
         # remove collapsed strips
         if all([u == v for u, v in new_edges]):
@@ -125,7 +132,8 @@ def strips_to_split_to_prevent_boundary_collapse(mesh, skeys):
 
     to_split = {}
     for boundary in mesh.boundaries():
-        non_deleted_strips = [mesh.edge_strip((u, v)) for u, v in pairwise(boundary + boundary[:1]) if mesh.edge_strip((u, v)) not in skeys]
+        non_deleted_strips = [mesh.edge_strip((u, v)) for u, v in pairwise(
+            boundary + boundary[:1]) if mesh.edge_strip((u, v)) not in skeys]
 
         if len(non_deleted_strips) == 0:
             return None
