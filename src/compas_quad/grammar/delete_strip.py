@@ -1,4 +1,4 @@
-from compas.network import Network
+from compas.datastructures import Network
 
 from compas.datastructures import network_disconnected_nodes
 from compas.datastructures import mesh_substitute_vertex_in_faces
