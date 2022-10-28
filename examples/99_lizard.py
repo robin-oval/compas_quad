@@ -4,7 +4,7 @@ from time import time
 
 from math import pi, cos, sin
 
-from compas_quad.datastructures import QuadMesh, PseudoQuadMesh, CoarseQuadMesh, PseudoCoarseQuadMesh
+from compas_quad.datastructures import QuadMesh, PseudoQuadMesh, CoarseQuadMesh, CoarsePseudoQuadMesh
 
 from compas_quad.grammar import Lizard
 from compas_quad.grammar.lizard import string_generation_brute, string_generation_random, string_generation_structured

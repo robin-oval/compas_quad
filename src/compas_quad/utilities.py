@@ -6,7 +6,7 @@ from __future__ import division
 __all__ = []
 
 
-def list_split(l, indices):
+def list_split(in_list, indices):
     """Split list at given indices.
     Closed lists have the same first and last elements.
     If the list is closed, splitting wraps around if the first or last index is not in the indices to split.
@@ -26,9 +26,9 @@ def list_split(l, indices):
 
     """
 
-    n = len(l)
+    n = len(in_list)
 
-    if l[0] == l[-1]:
+    if in_list[0] == in_list[-1]:
         closed = True
         if n - 1 in indices:
             indices.remove(n - 1)
@@ -41,7 +41,7 @@ def list_split(l, indices):
 
     split_lists = []
     current_list = []
-    for index, item in enumerate(l):
+    for index, item in enumerate(in_list):
         current_list.append(item)
         if (index in indices and index != 0) or index == n - 1:
             split_lists.append(current_list)

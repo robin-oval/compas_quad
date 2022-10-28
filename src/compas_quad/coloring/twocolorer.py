@@ -2,12 +2,10 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import division
 
-import time
 import itertools
 
 from compas.topology import adjacency_from_edges
 
-from compas_singular.datastructures import QuadMesh
 from compas_singular.datastructures import delete_strips
 from compas_singular.datastructures import collateral_strip_deletions
 from compas_singular.datastructures import total_boundary_deletions
@@ -406,7 +404,7 @@ class TwoColorer(object):
         while k < kmax:
             k += 1
             to_continue = False
-            at_least_one_valid_k = False
+            # at_least_one_valid_k = False
             # test all combinations of (n k) strips
             for combination in itertools.combinations(mesh.strips(), k):
                 set_combi = set(combination)
@@ -463,14 +461,13 @@ class TwoColorer(object):
                         discarding_combination.append(set(combination))
                         discarding_combination_type[tuple(
                             combination)] = 'two-colourable'
-                        at_least_one_valid_k = True
+                        # at_least_one_valid_k = True
                         total_valid += 1
 
             if not to_continue:
                 break
 
         self.results = results
-        self.times = (t1 - t0, t2 - t0, t3 - t0)
 
     # --------------------------------------------------------------------------
     # results
