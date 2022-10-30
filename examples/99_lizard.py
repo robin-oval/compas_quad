@@ -134,7 +134,7 @@ print('strings {}'.format(strings))
 # apply
 
 t0 = time()
-
+meshes = []
 successes, fails = 0, 0
 
 for k, string in enumerate(strings):
@@ -165,14 +165,7 @@ for k, string in enumerate(strings):
             mesh = mesh.dense_mesh()
             mesh = postprocessing(mesh)
 
-        # visualisation
-        if view:
-            k0 = successes if condensed_view else k
-            k2 = int(number_strings ** 0.5)
-            i = int(k0 / k2)
-            j = int(k0 % k2)
-            mesh.move([1.5 * (i + 1), 1.5 * (j + 1), 0.0])
-            viewer.add(mesh)
+        meshes.append(mesh.copy())
 
         successes += 1
 
@@ -190,5 +183,13 @@ ratio_fails = fails / number_strings
 print('{} / {} successes ({} ratio)'.format(int(successes),
                                             int(number_strings), round(1.0 - ratio_fails, 2)))
 
+# visualisation
 if view:
+    n = len(meshes)
+    for k, mesh in enumerate(meshes):
+        n2 = int(n ** 0.5)
+        i = int(k / n2)
+        j = int(k % n2)
+        mesh.move([1.5 * (i + 1), 1.5 * (j + 1), 0.0])
+        viewer.add(mesh)
     viewer.show()
