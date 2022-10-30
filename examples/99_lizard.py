@@ -62,14 +62,14 @@ brute_string_length = 5
 # for 'random' generation
 add_random_strings = False
 random_string_characters = 'atp'
-random_string_number = 1000
+random_string_number = 100
 random_string_length = 10
 random_string_ratios = [0.2, 0.5, 0.3]
 
 # for 'structured' construction
 add_structured_strings = True
 structured_string_characters = 'atp'
-structured_string_number = 1000
+structured_string_number = 100
 structured_string_length = 10
 
 postprocess = True
@@ -135,7 +135,7 @@ print('strings {}'.format(strings))
 
 t0 = time()
 meshes = []
-successes, fails = 0, 0
+successful_strings, failed_strings = [], []
 
 for k, string in enumerate(strings):
 
@@ -152,7 +152,6 @@ for k, string in enumerate(strings):
             FILE = os.path.join(
                 HERE, 'data/{}_{}.json'.format(in_mesh_refinement, string))
             mesh.to_json(FILE)
-            # print('topology exported at {}'.format(FILE))
 
         # geometrical processing
         if postprocess:
@@ -167,21 +166,18 @@ for k, string in enumerate(strings):
 
         meshes.append(mesh.copy())
 
-        successes += 1
+        successful_strings.append(string)
 
     except:
-        fails += 1
-        # print('topo or geom failed')
+        failed_strings.append(string)
 
 # results
 
 t1 = time()
 print('computation time {}s'.format(round(t1 - t0, 3)))
 
-ratio_fails = fails / number_strings
-
-print('{} / {} successes ({} ratio)'.format(int(successes),
-                                            int(number_strings), round(1.0 - ratio_fails, 2)))
+print('{} / {} successes ({} ratio)'.format(int(len(successful_strings)),
+                                            int(number_strings), round(len(successful_strings) / number_strings, 2)))
 
 # visualisation
 if view:
