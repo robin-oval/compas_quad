@@ -6,7 +6,7 @@ from ast import literal_eval
 
 import compas
 
-from compas_quad.mesh_quad import QuadMesh
+from compas_quad.datastructures import QuadMesh
 
 from compas_quad.utilities import list_split
 from compas.utilities import geometric_key
