@@ -149,7 +149,7 @@ def string_generation_structured(characters, number, length):
                     polyedge_length += 1
 
             # polyedge being collected - more chances to obtain 't' or 'p'
-            
+
             # do not add if polyedge has only one vertex
             elif polyedge_length == 1:
                 if x < 0.5:
