@@ -99,15 +99,15 @@ class CoarsePseudoQuadMesh(PseudoQuadMesh, CoarseQuadMesh):
                             mesh.vertex_coordinates(u))
                         break
 
-        self.set_quad_mesh(meshes_join_and_weld(meshes))
+        self.dense_mesh(meshes_join_and_weld(meshes))
 
         face_pole = {}
-        for fkey in self.get_quad_mesh().faces():
-            if geometric_key(self.get_quad_mesh().face_center(fkey)) in face_pole_map:
-                for vkey in self.get_quad_mesh().face_vertices(fkey):
-                    if geometric_key(self.get_quad_mesh().vertex_coordinates(vkey)) == face_pole_map[geometric_key(self.get_quad_mesh().face_center(fkey))]:
+        for fkey in self.dense_mesh().faces():
+            if geometric_key(self.dense_mesh().face_center(fkey)) in face_pole_map:
+                for vkey in self.dense_mesh().face_vertices(fkey):
+                    if geometric_key(self.dense_mesh().vertex_coordinates(vkey)) == face_pole_map[geometric_key(self.dense_mesh().face_center(fkey))]:
                         face_pole[fkey] = vkey
                         break
 
-        self.get_quad_mesh().attributes['face_pole'] = face_pole
-        return self.get_quad_mesh()
+        self.dense_mesh().attributes['face_pole'] = face_pole
+        return self.dense_mesh()
