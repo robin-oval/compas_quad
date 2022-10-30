@@ -6,9 +6,9 @@ from ast import literal_eval
 
 import compas
 
-from .mesh_quad import QuadMesh
+from compas_quad.mesh_quad import QuadMesh
 
-from ..utilities import list_split
+from compas_quad.utilities import list_split
 from compas.utilities import geometric_key
 
 from distutils.version import LooseVersion

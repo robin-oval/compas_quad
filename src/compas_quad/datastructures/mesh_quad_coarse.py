@@ -13,8 +13,8 @@ from compas.geometry import vector_average
 
 from compas.datastructures import meshes_join_and_weld
 
-from .mesh import Mesh
-from .mesh_quad import QuadMesh
+from compas_quad.mesh import Mesh
+from compas_quad.mesh_quad import QuadMesh
 
 from compas.utilities import pairwise
 

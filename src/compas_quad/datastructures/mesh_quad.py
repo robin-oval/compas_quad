@@ -10,7 +10,7 @@ from compas.geometry import centroid_points
 from compas_quad.datastructures import Mesh
 
 from compas.utilities import pairwise
-from ..utilities import list_split
+from compas_quad.utilities import list_split
 
 
 __all__ = ['QuadMesh']

@@ -2,8 +2,8 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-from .add_strip import add_strip
-from .delete_strip import delete_strip
+from .addition import add_strip
+from .deletion import delete_strip
 
 from itertools import product
 from random import random

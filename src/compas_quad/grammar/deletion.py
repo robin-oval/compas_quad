@@ -1,3 +1,7 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import division
+
 from compas.datastructures import Network
 
 from compas.datastructures import network_disconnected_nodes
@@ -9,6 +13,8 @@ from compas.utilities import pairwise
 
 
 __all__ = [
+    'delete_strip',
+    'delete_strips'
 ]
 
 
@@ -155,3 +161,27 @@ def strips_to_split_to_prevent_boundary_collapse(mesh, skeys):
             to_split.update({skey: 2 for skey in non_deleted_strips})
 
     return to_split
+
+
+def collateral_strip_deletions(mesh, skeys):
+    """Return the strips that would be deleted from the deletion of other strips.
+    """
+
+    deleted_fkeys = [fkey for skey in skeys for fkey in mesh.strip_faces(skey)]
+    return [skey for skey in mesh.strips() if skey not in skeys and all([fkey in deleted_fkeys for fkey in mesh.strip_faces(skey)])]
+
+
+def total_boundary_deletions(mesh, skeys):
+    """Return the strips that would be deleted from the deletion of other strips.
+    """
+
+    deleted_strips = list(
+        skeys) + list(collateral_strip_deletions(mesh, skeys))
+    deleted_boundaries = []
+    deleted_edges = set(
+        [edge for skey in deleted_strips for edge in mesh.strip_edges(skey)])
+    for boundary in mesh.boundaries():
+        edges = [(u, v) for u, v in pairwise(boundary + boundary[:1])]
+        if all([(u, v) in deleted_edges or (v, u) in deleted_edges for u, v in edges]):
+            deleted_boundaries.append(boundary)
+    return deleted_boundaries

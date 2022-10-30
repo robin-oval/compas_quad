@@ -6,11 +6,12 @@ import itertools
 
 from compas.topology import adjacency_from_edges
 
-from compas_singular.datastructures import delete_strips
-from compas_singular.datastructures import collateral_strip_deletions
-from compas_singular.datastructures import total_boundary_deletions
-from compas_singular.topology import is_adjacency_two_colorable
-from compas_singular.utilities import are_items_in_list
+from compas_quad.coloring import is_adjacency_two_colorable
+
+from compas_quad.grammar import delete_strips
+from compas_quad.grammar.deletion import collateral_strip_deletions, total_boundary_deletions
+
+from compas_quad.utilities import are_items_in_list
 
 
 __all__ = [

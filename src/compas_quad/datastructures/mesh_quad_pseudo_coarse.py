@@ -7,8 +7,8 @@ from compas.geometry import discrete_coons_patch
 
 from compas.datastructures import meshes_join_and_weld
 
-from .mesh_quad_pseudo import PseudoQuadMesh
-from .mesh_quad_coarse import CoarseQuadMesh
+from compas_quad.mesh_quad_pseudo import PseudoQuadMesh
+from compas_quad.mesh_quad_coarse import CoarseQuadMesh
 
 from compas.utilities import pairwise, geometric_key, linspace
 

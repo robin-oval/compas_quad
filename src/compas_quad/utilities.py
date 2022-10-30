@@ -3,7 +3,10 @@ from __future__ import absolute_import
 from __future__ import division
 
 
-__all__ = []
+__all__ = [
+    'list_split',
+    'are_items_in_list'
+]
 
 
 def list_split(in_list, indices):
@@ -53,3 +56,25 @@ def list_split(in_list, indices):
             split_lists[-1] += start
 
     return split_lists
+
+
+def are_items_in_list(items, l):
+    """Check if items are in a list.
+
+    Parameters
+    ----------
+    items : list
+            A list of items (order does not matter).
+    l : list
+            A list.
+
+    Returns
+    -------
+    bool
+            True if all items are in the list. False otherwise.
+    """
+
+    for i in items:
+        if i not in l:
+            return False
+    return True

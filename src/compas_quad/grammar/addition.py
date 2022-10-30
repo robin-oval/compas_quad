@@ -1,11 +1,17 @@
-from compas.topology import breadth_first_paths
-from compas.datastructures import mesh_substitute_vertex_in_faces
-from compas.utilities import pairwise
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import division
 
-# from ..grammar_pattern import strip_polyedge_update
+from compas.topology import breadth_first_paths
+
+from compas.datastructures import mesh_substitute_vertex_in_faces
+
+from compas.utilities import pairwise
 
 
 __all__ = [
+    'add_strip',
+    'add_strips'
 ]
 
 
