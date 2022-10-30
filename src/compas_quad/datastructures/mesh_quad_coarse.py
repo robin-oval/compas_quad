@@ -28,8 +28,8 @@ class CoarseQuadMesh(QuadMesh):
         self.attributes['strips_density'] = {}
         self.attributes['vertex_coarse_to_dense'] = {}
         self.attributes['edge_coarse_to_dense'] = {}
-        self.attributes['quad_mesh'] = None
-        self.attributes['polygonal_mesh'] = None
+        self.attributes['dense_mesh'] = None
+        self.attributes['pattern'] = None
 
     # --------------------------------------------------------------------------
     # constructors
@@ -77,7 +77,7 @@ class CoarseQuadMesh(QuadMesh):
             mesh = Mesh.from_vertices_and_faces(
                 vertices, [faces[face] for face in connected_faces])
             coarse_faces_children[i] = [vkey for vkey in reversed(
-                mesh.boundaries()[0]) if mesh.vertex_degree(vkey) == 2]
+                mesh.vertices_on_boundaries()[0]) if mesh.vertex_degree(vkey) == 2]
 
         coarse_quad_mesh = cls.from_vertices_and_faces(
             coarse_vertices, coarse_faces_children)
@@ -107,8 +107,8 @@ class CoarseQuadMesh(QuadMesh):
                 coarse_quad_mesh.strip_density(skey, d)
 
         # store quad mesh and use as polygonal mesh
-        coarse_quad_mesh.set_quad_mesh(quad_mesh)
-        coarse_quad_mesh.set_polygonal_mesh(deepcopy(quad_mesh))
+        coarse_quad_mesh.dense_mesh(quad_mesh)
+        coarse_quad_mesh.pattern(deepcopy(quad_mesh))
 
         return coarse_quad_mesh
 
@@ -118,14 +118,13 @@ class CoarseQuadMesh(QuadMesh):
 
     def dense_mesh(self, quad_mesh=None):
         if quad_mesh:
-            self.attributes['quad_mesh'] = quad_mesh
-        return self.attributes['quad_mesh']
+            self.attributes['dense_mesh'] = quad_mesh
+        return self.attributes['dense_mesh']
 
-    # def get_polygonal_mesh(self):
-    #     return self.attributes['polygonal_mesh']
-
-    # def set_polygonal_mesh(self, polygonal_mesh):
-    #     self.attributes['polygonal_mesh'] = polygonal_mesh
+    def pattern(self, pattern=None):
+        if pattern:
+            self.attributes['pattern'] = pattern
+        return self.attributes['pattern']
 
     # --------------------------------------------------------------------------
     # element child-parent relation getters

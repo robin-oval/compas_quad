@@ -296,7 +296,7 @@ class QuadMesh(Mesh):
         all_splits = list(
             set([vkey for polyedge in polyedges for vkey in polyedge] + self.singularities()))
 
-        for boundary in self.boundaries():
+        for boundary in self.vertices_on_boundaries():
             splits = [vkey for vkey in boundary if vkey in all_splits]
             new_splits = []
 
