@@ -149,23 +149,23 @@ def string_generation_structured(characters, number, length):
                     polyedge_length += 1
 
             # polyedge being collected - more chances to obtain 't' or 'p'
-            else:
-                # do not add if polyedge has only one vertex
-                if polyedge_length == 1:
-                    if x < 0.5:
-                        string += 't'
-                        polyedge_length += 1
-                    else:
-                        string += 'p'
-
+            
+            # do not add if polyedge has only one vertex
+            elif polyedge_length == 1:
+                if x < 0.5:
+                    string += 't'
+                    polyedge_length += 1
                 else:
-                    if x < 0.4:
-                        string += 't'
-                        polyedge_length += 1
-                    elif x < 0.8:
-                        string += 'p'
-                    else:
-                        string += 'a'
-                        polyedge_length = 0
+                    string += 'p'
+
+            else:
+                if x < 0.4:
+                    string += 't'
+                    polyedge_length += 1
+                elif x < 0.8:
+                    string += 'p'
+                else:
+                    string += 'a'
+                    polyedge_length = 0
 
         yield string
