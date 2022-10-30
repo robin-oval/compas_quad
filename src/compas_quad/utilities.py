@@ -17,7 +17,7 @@ def list_split(in_list, indices):
 
     Parameters
     ----------
-    l : list
+    in_list : list
             A list.
     indices : list
             A list of indices to split.
@@ -58,14 +58,14 @@ def list_split(in_list, indices):
     return split_lists
 
 
-def are_items_in_list(items, l):
+def are_items_in_list(items, in_list):
     """Check if items are in a list.
 
     Parameters
     ----------
     items : list
             A list of items (order does not matter).
-    l : list
+    in_list : list
             A list.
 
     Returns
@@ -75,6 +75,6 @@ def are_items_in_list(items, l):
     """
 
     for i in items:
-        if i not in l:
+        if i not in in_list:
             return False
     return True
