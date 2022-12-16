@@ -4,7 +4,7 @@ from time import time
 
 from math import pi, cos, sin
 
-from compas_quad.datastructures import QuadMesh, PseudoQuadMesh, CoarseQuadMesh, CoarsePseudoQuadMesh
+from compas_quad.datastructures import QuadMesh, CoarseQuadMesh
 
 from compas_quad.grammar import Lizard
 from compas_quad.grammar.lizard import string_generation_brute, string_generation_random, string_generation_structured
@@ -48,11 +48,11 @@ def postprocessing(mesh):
 
 
 in_mesh_refinement = 2  # densify the input 1-face quad mesh
-out_mesh_refinement = 4  # densify the ouput quad mesh
+out_mesh_refinement = 2  # densify the ouput quad mesh
 
 # for 'given' production (try: ata, attta, d, atttad, attpptta ...)
-add_given_strings = False
-given_strings = ['attta']
+add_given_strings = True
+given_strings = ['atttta']
 
 # for 'brute' force enumeration
 add_brute_strings = False
@@ -67,7 +67,7 @@ random_string_length = 10
 random_string_ratios = [0.2, 0.5, 0.3]
 
 # for 'structured' construction
-add_structured_strings = True
+add_structured_strings = False
 structured_string_characters = 'atp'
 structured_string_number = 100
 structured_string_length = 10

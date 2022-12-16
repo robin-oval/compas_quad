@@ -216,7 +216,7 @@ class QuadMesh(Mesh):
 
         """
 
-        edges = list(self.edges())
+        edges = set(self.edges())
 
         nb_polyedges = -1
         while len(edges) > 0:
@@ -492,8 +492,8 @@ class QuadMesh(Mesh):
             The strip data.
         """
 
-        edges = [(u, v) if self.halfedge[u][v] is not None else (v, u)
-                 for u, v in self.edges()]
+        edges = set([(u, v) if self.halfedge[u][v] is not None else (v, u)
+                 for u, v in self.edges()])
 
         nb_strip = -1
         while len(edges) > 0:

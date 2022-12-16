@@ -65,38 +65,56 @@ def add_strip_lizard(mesh, lizard, movements):
 
     tail, body, head = lizard
 
-    for operation in movements:
+    new_fkeys = []
+
+    movements_copy = movements
+
+    while len(movements) > 0:
+
+        operation, movements = movements[0], movements[1:]
 
         # pivot
-        if operation == 'p':
+        if operation == '0':
             body, head = pivot(mesh, body, head)
 
         # turn
-        if operation == 't':
+        if operation == '1':
 
             # store next position
             next_body, next_head = turn(mesh, body, head)
-
             # add new vertices on left and right sides
+            if body != head:
+                t1, t2 = 0.1, 0.1
+            else:
+                t1, t2 = 0.1, 0.2
             body_left = add_vertex_on_edge(mesh, body, vertex_neighbor_before(mesh, body, head), t=0.1)
             body_right = add_vertex_on_edge(mesh, body, vertex_neighbor_after(mesh, body, head), t=0.1)
 
             # add tri face
-            mesh.add_face([head, body_left, body_right])
+            new_fkeys.append(mesh.add_face([head, body_left, body_right]))
 
             # sort left and right neighbors and faces except for previous quad face
-            faces_left = [mesh.halfedge[nbr][body] for nbr in vertex_neighbors_between(mesh, body, head, tail)[1:]]            
-            faces_right = [mesh.halfedge[nbr][body] for nbr in vertex_neighbors_between(mesh, body, tail, head)]
-            
+            if tail != head:
+                faces_left = [mesh.halfedge[nbr][body] for nbr in vertex_neighbors_between(mesh, body, head, tail)[1:]]            
+                faces_right = [mesh.halfedge[nbr][body] for nbr in vertex_neighbors_between(mesh, body, tail, head)]
+            else:       
+                fkeys = mesh.vertex_faces(body).copy()
+                if body in mesh.halfedge[tail]:
+                    fkey = mesh.halfedge[tail][body]
+                    if fkey is not None:
+                        fkeys.remove(fkey)
+                faces_left, faces_right = fkeys, []
+
             # substitute vertices in left and right faces
             mesh_substitute_vertex_in_faces(mesh, body, body_left, fkeys=[fkey for fkey in faces_left if fkey is not None])
             mesh_substitute_vertex_in_faces(mesh, body, body_right, fkeys=[fkey for fkey in faces_right if fkey is not None])
-            
+
             # convert previous tri face into quad face
-            fkey = mesh.halfedge[tail][body]
-            face_vertices = list_replace_item(mesh.face_vertices(fkey).copy(), body, [body_right, body_left])
-            mesh.delete_face(fkey)
-            mesh.add_face(face_vertices, fkey=fkey)
+            if body in mesh.halfedge[tail]:
+                fkey = mesh.halfedge[tail][body]
+                face_vertices = list_replace_item(mesh.face_vertices(fkey).copy(), body, [body_right, body_left])
+                mesh.delete_face(fkey)
+                mesh.add_face(face_vertices, fkey=fkey)
 
             # delete old vertex
             mesh.delete_vertex(body)
@@ -104,60 +122,133 @@ def add_strip_lizard(mesh, lizard, movements):
             # update lizard
             tail, body, head = body_right, next_body, next_head
 
+    if len(new_fkeys) > 0 and mesh.is_vertex_on_boundary(body):
+        
+        # close strip if possible
+        if mesh.halfedge[head][body] == new_fkeys[0]:
+            print('!')
+            body_left, body_right = head, body
+            fkey = new_fkeys[-1]
+            face_vertices = list_replace_item(mesh.face_vertices(fkey).copy(), body, [body_right, body_left])
+            mesh.delete_face(fkey)
+            mesh.add_face(face_vertices, fkey=fkey)
+
+        else:
+            print('!!')
+            print(mesh.number_of_vertices())
+            nbrs = mesh.vertex_neighbors(body, ordered=True)
+            body_left = add_vertex_on_edge(mesh, body, nbrs[-1], t=0.1)
+            body_right = add_vertex_on_edge(mesh, body, nbrs[0], t=0.1)
+            i = nbrs.index(tail)
+            faces_left = [mesh.halfedge[nbr][body] for nbr in nbrs[i:][1:]]            
+            faces_right = [mesh.halfedge[nbr][body] for nbr in nbrs[:i]]
+            mesh_substitute_vertex_in_faces(mesh, body, body_left, fkeys=[fkey for fkey in faces_left if fkey is not None])
+            mesh_substitute_vertex_in_faces(mesh, body, body_right, fkeys=[fkey for fkey in faces_right if fkey is not None])        
+            fkey = new_fkeys[-1]
+            face_vertices = list_replace_item(mesh.face_vertices(fkey).copy(), body, [body_right, body_left])
+            mesh.delete_face(fkey)
+            mesh.add_face(face_vertices, fkey=fkey)
+            mesh.delete_vertex(body)
+            print(mesh.number_of_vertices())
+    print(tail, body, head, mesh.face_vertices(4), mesh.face_vertices(5))
+    return tail, body, head
+
 
 if __name__ == '__main__':
 
+    from math import pi, cos, sin
+
+    from itertools import product
+
     from compas_quad.datastructures import Mesh
 
-    from compas_quad.datastructures import QuadMesh, CoarseQuadMesh
+    from compas_quad.datastructures import QuadMesh, CoarseQuadMesh, CoarsePseudoQuadMesh
+
+    from compas.numerical import fd_numpy
 
     from compas_view2.app import App
 
-    # vertices = [
-    #     [0.0, 0.0, 0.0],
-    #     [0.5, 0.0, 0.0],
-    #     [1.5, 0.0, 0.0],
-    #     [2.0, 0.0, 0.0],
-    #     [0.0, 1.0, 0.0],
-    #     [1.0, 1.0, 0.0],
-    #     [2.0, 1.0, 0.0],
-    #     [0.0, 2.0, 0.0],
-    #     [1.0, 2.0, 0.0],
-    #     [2.0, 2.0, 0.0],
-    # ]
 
-    # faces = [
-    #     [0, 1, 5, 4],
-    #     [1, 2, 5],
-    #     [2, 3, 6, 5],
-    #     [4, 5, 8, 7],
-    #     [5, 6, 9, 8],
-    # ]
+    def postprocessing(mesh):
 
-    # mesh = Mesh.from_vertices_and_faces(vertices, faces)
+        key2index = mesh.key_index()
+        index2key = mesh.index_key()
 
+        # map boundary to circle
+        fixed = [key2index[key] for key in mesh.vertices_on_boundary()[:-1]]
+        n = len(fixed)
+        for i, vidx in enumerate(fixed):
+            vkey = index2key[vidx]
+            attr = mesh.vertex[vkey]
+            attr['x'] = 0.5 * cos(i / n * 2 * pi)
+            attr['y'] = 0.5 * sin(i / n * 2 * pi)
+            attr['z'] = 0
 
-    vertices = [[0.5, 0.5, 0.0], [-0.5, 0.5, 0.0],
-                [-0.5, -0.5, 0.0], [0.5, -0.5, 0.0]]
-    faces = [[0, 1, 2, 3]]
-    coarse = CoarseQuadMesh.from_vertices_and_faces(vertices, faces)
+        # force density method
+        vertices = [mesh.vertex_coordinates(vkey) for vkey in mesh.vertices()]
+        edges = [(key2index[u], key2index[v]) for u, v in mesh.edges()]
+        q = [1.0] * len(edges)
+        loads = [[0.0, 0.0, 0.0]] * len(vertices)
 
-    # denser mesh
-    coarse.collect_strips()
-    coarse.strips_density(2)
-    coarse.densification()
-    mesh = coarse.dense_mesh()
-    mesh.collect_strips()
+        xyz, q, f, l, r = fd_numpy(vertices, edges, fixed, q, loads)
 
-    for vkey in mesh.vertices_on_boundary():
-    if mesh.vertex_degree(vkey) == 2:
-        body = vkey
-        tail, head = [nbr for nbr in mesh0.vertex_neighbors(vkey) if mesh0.is_vertex_on_boundary(nbr)]
-    break
+        for i, (x, y, z) in enumerate(xyz):
+            vkey = index2key[i]
+            attr = mesh.vertex[vkey]
+            attr['x'] = x
+            attr['y'] = y
+            attr['z'] = z
+
+    vertices = [
+        [0.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [2.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [1.0, 1.0, 0.0],
+        [2.0, 1.0, 0.0],
+        [0.0, 2.0, 0.0],
+        [1.0, 2.0, 0.0],
+        [2.0, 2.0, 0.0],
+    ]
+
+    faces = [
+        [0, 1, 4, 3],
+        [1, 2, 5, 4],
+        [3, 4, 7, 6],
+        [4, 5, 8, 7],
+    ]
+
+    mesh0 = Mesh.from_vertices_and_faces(vertices, faces)
+
+    for vkey in mesh0.vertices_on_boundary():
+        if mesh0.vertex_degree(vkey) == 2:
+            body = vkey
+            tail, head = [nbr for nbr in mesh0.vertex_neighbors(vkey) if mesh0.is_vertex_on_boundary(nbr)]
+        break
     
-    add_strip_lizard(mesh, (2, 5, 8), 'ttttptpt')
+    lizard = tail, body, head
+    print('lizard', lizard)
 
-    # mesh.to_json('C:/Users/robin/OneDrive/Bureau/tmp.json')
+    for string in product('01', repeat=5):
+        print('string', string)
+        
+        mesh = mesh0.copy()
+        tail, body, head = add_strip_lizard(mesh, lizard, string)
+
+        print('manifold', mesh_is_manifold(mesh))
+        print('quad', mesh.is_quadmesh())
+
+        # if mesh.is_quadmesh():
+        # vertices, faces = mesh.to_vertices_and_faces()
+        # mesh = CoarseQuadMesh.from_vertices_and_faces(vertices, faces)
+        # mesh = CoarsePseudoQuadMesh.from_vertices_and_faces_with_poles(vertices, faces, poles=[pole])
+        # mesh.collect_strips()
+        # mesh.strips_density(3)
+        # mesh.densification()
+        # mesh = mesh.dense_mesh()
+        # postprocessing(mesh)
+
+    mesh.to_json('C:/Users/robin/OneDrive/Bureau/tmp.json')
 
     viewer = App(width=1600, height=900)
     viewer.add(mesh)

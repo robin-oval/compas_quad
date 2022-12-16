@@ -451,30 +451,6 @@ class PseudoQuadMesh(QuadMesh):
     #         The key of the face.
     #         Any hashable object may be provided as identifier for the face.
     #         Provided keys are returned unchanged.
-
-    #     Raises
-    #     ------
-    #     TypeError
-    #         If the provided face key is of an unhashable type.
-
-    #     Notes
-    #     -----
-    #     If no key is provided for the face, one is generated
-    #     automatically. An automatically generated key is an integer that increments
-    #     the highest integer value of any key used so far by 1.
-
-    #     If a key with an integer value is provided that is higher than the current
-    #     highest integer key value, then the highest integer value is updated accordingly.
-
-    #     See Also
-    #     --------
-    #     * :meth:`add_vertex`
-    #     * :meth:`add_edge`
-
-    #     Examples
-    #     --------
-    #     >>>
-
     #     """
     #     attr = self._compile_fattr(attr_dict, kwattr)
 
@@ -509,25 +485,6 @@ class PseudoQuadMesh(QuadMesh):
     #     ----------
     #     fkey : hashable
     #         The identifier of the face.
-
-    #     Examples
-    #     --------
-    #     .. plot::
-    #         :include-source:
-
-    #         import compas
-    #         from compas.datastructures import Mesh
-    #         from compas.plotters import MeshPlotter
-
-    #         mesh = Mesh.from_obj(compas.get('faces.obj'))
-
-    #         mesh.delete_face(12)
-
-    #         plotter = MeshPlotter(mesh)
-    #         plotter.draw_vertices()
-    #         plotter.draw_faces()
-    #         plotter.show()
-
     #     """
     #     def check_validity(self):
     #         for u, v in self.edges():
@@ -549,52 +506,6 @@ class PseudoQuadMesh(QuadMesh):
     #     ----------
     #     key : hashable
     #         The identifier of the vertex.
-
-    #     Examples
-    #     --------
-    #     .. plot::
-    #         :include-source:
-
-    #         import compas
-    #         from compas.datastructures import Mesh
-    #         from compas_plotters import MeshPlotter
-
-    #         mesh = Mesh.from_obj(compas.get('faces.obj'))
-
-    #         mesh.delete_vertex(17)
-
-    #         color = {key: '#ff0000' for key in mesh.vertices() if mesh.vertex_degree(key) == 2}
-
-    #         plotter = MeshPlotter(mesh)
-    #         plotter.draw_vertices(facecolor=color)
-    #         plotter.draw_faces()
-    #         plotter.show()
-
-    #     In some cases, disconnected vertices can remain after application of this
-    #     method. To remove these vertices as well, combine this method with vertex
-    #     culling (:meth:`cull_vertices`).
-
-    #     .. plot::
-    #         :include-source:
-
-    #         import compas
-    #         from compas.datastructures import Mesh
-    #         from compas_plotters import MeshPlotter
-
-    #         mesh = Mesh.from_obj(compas.get('faces.obj'))
-
-    #         mesh.delete_vertex(17)
-    #         mesh.delete_vertex(18)
-    #         mesh.delete_vertex(0)
-    #         mesh.cull_vertices()
-
-    #         color = {key: '#ff0000' for key in mesh.vertices() if mesh.vertex_degree(key) == 2}
-
-    #         plotter = MeshPlotter(mesh)
-    #         plotter.draw_vertices(facecolor=color)
-    #         plotter.draw_faces()
-    #         plotter.show()
-
     #     """
     #     nbrs = self.vertex_neighbors(key)
     #     for nbr in nbrs:
@@ -631,44 +542,6 @@ class PseudoQuadMesh(QuadMesh):
 #             The next edge as a (u, v) tuple, if ``data`` is false.
 #         3-tuple
 #             The next edge as a (u, v, data) tuple, if ``data`` is true.
-
-#         Note
-#         ----
-#         Mesh edges have no topological meaning. They are only used to store data.
-#         Edges are not automatically created when vertices and faces are added to
-#         the mesh. Instead, they are created when data is stored on them, or when
-#         they are accessed using this method.
-
-#         This method yields the directed edges of the mesh.
-#         Unless edges were added explicitly using :meth:`add_edge` the order of
-#         edges is *as they come out*. However, as long as the toplogy remains
-#         unchanged, the order is consistent.
-
-#         Example
-#         -------
-#         .. code-block:: python
-
-#             import compas
-#             from compas.datastructures import Mesh
-#             from compas.plotters import MeshPlotter
-
-#             mesh = Mesh.from_obj(compas.get('faces.obj'))
-
-#             for index, (u, v, attr) in enumerate(mesh.edges(True)):
-#                 attr['index1'] = index
-
-#             for index, (u, v, attr) in enumerate(mesh.edges(True)):
-#                 attr['index2'] = index
-
-#             plotter = MeshPlotter(mesh)
-
-#             text = {(u, v): '{}-{}'.format(a['index1'], a['index2']) for u, v, a in mesh.edges(True)}
-
-#             plotter.draw_vertices()
-#             plotter.draw_faces()
-#             plotter.draw_edges(text=text)
-#             plotter.show()
-
 #         """
 #         edges = set()
 
@@ -740,11 +613,6 @@ class PseudoQuadMesh(QuadMesh):
 #     -------
 #     vertices, new_face_vertices: list
 #         The vertices with the new face_vertices.
-
-#     Raises
-#     ------
-#     -
-
 #     """
 
 #     vertices = [mesh.vertex_coordinates(vkey) for vkey in mesh.vertices()]

@@ -169,3 +169,32 @@ def string_generation_structured(characters, number, length):
                     polyedge_length = 0
 
         yield string
+
+def string_generation_evolution(evolution_string_characters, evolution_string_number, evolution_string_length):
+
+    strings = []
+
+    for _ in range(evolution_string_number):
+
+        if len(strings) == 0:
+            string = ''
+            for _ in range(evolution_string_length):
+                x = random()
+                i = int(x * len(evolution_string_characters))
+                character = evolution_string_characters[i]
+                string += character
+            strings.append(string)
+
+        else:
+            prev_string = strings[-1]
+            x = random()
+            i = int(x * evolution_string_length)
+            old_character = prev_string[i]
+            candidate_characters = evolution_string_characters.replace(old_character, '')
+            y = random()            
+            j = int(y * len(candidate_characters))
+            new_character = candidate_characters[j]
+            new_string = prev_string[:i] + new_character + prev_string[i + 1:]
+            strings.append(new_string)
+
+    return strings

@@ -4,9 +4,32 @@ from __future__ import division
 
 
 __all__ = [
-    'list_split',
     'are_items_in_list'
+    'list_split',
+    'sublist_from_to_items_in_closed_list'
 ]
+
+
+def are_items_in_list(items, in_list):
+    """Check if items are in a list.
+
+    Parameters
+    ----------
+    items : list
+            A list of items (order does not matter).
+    in_list : list
+            A list.
+
+    Returns
+    -------
+    bool
+            True if all items are in the list. False otherwise.
+    """
+
+    for i in items:
+        if i not in in_list:
+            return False
+    return True
 
 
 def list_split(in_list, indices):
@@ -58,23 +81,32 @@ def list_split(in_list, indices):
     return split_lists
 
 
-def are_items_in_list(items, in_list):
-    """Check if items are in a list.
+def sublist_from_to_items_in_closed_list(l, from_item, to_item):
+    """Return sublist between oe item to another.
 
     Parameters
     ----------
-    items : list
-            A list of items (order does not matter).
-    in_list : list
+    l : list
             A list.
+    from_item
+            An item to be found in the list. The beginning of the sublist.
+    to_item
+            An item to be found in the list. The end of the sublist.
 
     Returns
     -------
-    bool
-            True if all items are in the list. False otherwise.
+    sublist : list
+            A sublist from the input list, between from_item and to_item.
     """
 
-    for i in items:
-        if i not in in_list:
-            return False
-    return True
+    if from_item == to_item:
+        return [from_item]
+    if l[0] != l[-1]:
+        l.append(l[0])
+    from_idx = l.index(from_item)
+    to_idx = l.index(to_item)
+    sublists = list_split(l, [from_idx, to_idx])
+
+    for sublist in sublists:
+        if sublist[0] == from_item:
+            return sublist
