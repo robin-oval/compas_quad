@@ -141,12 +141,6 @@ def quad_mesh_polyedge_subcolor(quad_mesh, color=0):
 
     polyedge2color = quad_mesh_polyedge_n_coloring(quad_mesh)
 
-    subnodes = []
-    for pkey, polyedge in quad_mesh.polyedges(data=True):
-        if polyedge2color[pkey] == 0:
-            subnodes.append(centroid_points(polyedge))
-            continue
-
     edge2polyedge = {}
     for pkey, polyedge in quad_mesh.polyedges(data=True):
         for u, v in pairwise(polyedge):
