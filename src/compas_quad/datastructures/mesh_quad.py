@@ -91,7 +91,7 @@ class QuadMesh(Mesh):
 
         # if (u, v) is along the boundary and v regular
         if self.is_edge_on_boundary(u, v) and n == 3:
-            for nbr in self.vertex_neighbors(v):
+            for nbr in nbrs:
                 if nbr != u and self.is_vertex_on_boundary(nbr):
                     return nbr
 
@@ -163,7 +163,7 @@ class QuadMesh(Mesh):
         """Count the number of polyedges in the mesh."""
         return len(list(self.polyedges()))
 
-    def collect_polyedge(self, u0, v0):
+    def collect_polyedge(self, u0, v0, both_sides=True):
         """Collect all the edges in the polyedge of the input edge.
 
         Parameters
@@ -172,6 +172,8 @@ class QuadMesh(Mesh):
             The identifier of the edge start.
         v : int
             The identifier of the edge end.
+        both_sides : bool, optional
+            Whether to collect the polyedge on both sides of the halfedge.
 
         Returns
         -------
@@ -179,9 +181,10 @@ class QuadMesh(Mesh):
             The list of the vertices in polyedge.
         """
 
+        n = self.number_of_vertices()
         polyedge = [u0, v0]
 
-        while len(polyedge) <= self.number_of_vertices():
+        while len(polyedge) <= n:
 
             # end if closed loop
             if polyedge[0] == polyedge[-1]:
@@ -192,6 +195,8 @@ class QuadMesh(Mesh):
 
             # flip if end of first extremity
             if w is None:
+                if not both_sides:
+                    break
                 polyedge = list(reversed(polyedge))
                 # stop if end of second extremity
                 w = self.vertex_opposite_vertex(*polyedge[-2:])
@@ -442,7 +447,7 @@ class QuadMesh(Mesh):
         """Count the number of strips in the mesh."""
         return len(list(self.strips()))
 
-    def collect_strip(self, u0, v0):
+    def collect_strip(self, u0, v0, both_sides=True):
         """Returns all the edges in the strip of the input edge.
 
         Parameters
@@ -451,6 +456,8 @@ class QuadMesh(Mesh):
             The identifier of the edge start.
         v : int
             The identifier of the edge end.
+        both_sides : bool, optional
+            Whether to collect the strip on both sides of the halfedge.
 
         Returns
         -------
@@ -459,6 +466,8 @@ class QuadMesh(Mesh):
         """
 
         if self.halfedge[u0][v0] is None:
+            if not both_sides:
+                    return (u0, v0)
             u0, v0 = v0, u0
 
         edges = [(u0, v0)]
@@ -476,6 +485,8 @@ class QuadMesh(Mesh):
             edges.append((x, w))
 
             if w not in self.halfedge[x] or self.halfedge[x][w] is None:
+                if not both_sides:
+                    break
                 edges = [(v, u) for u, v in reversed(edges)]
                 u, v = edges[-1]
                 if v not in self.halfedge[u] or self.halfedge[u][v] is None:
