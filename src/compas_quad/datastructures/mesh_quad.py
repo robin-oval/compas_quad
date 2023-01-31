@@ -60,6 +60,8 @@ class QuadMesh(Mesh):
         """
 
         fkey = self.halfedge[u][v]
+        if fkey is None:
+            return None
         w = self.face_vertex_descendant(fkey, v)
         x = self.face_vertex_descendant(fkey, w)
         return (w, x)
@@ -181,6 +183,8 @@ class QuadMesh(Mesh):
             The list of the vertices in polyedge.
         """
 
+        flipped = False
+
         n = self.number_of_vertices()
         polyedge = [u0, v0]
 
@@ -198,6 +202,7 @@ class QuadMesh(Mesh):
                 if not both_sides:
                     break
                 polyedge = list(reversed(polyedge))
+                flipped = True
                 # stop if end of second extremity
                 w = self.vertex_opposite_vertex(*polyedge[-2:])
                 if w is None:
@@ -205,6 +210,9 @@ class QuadMesh(Mesh):
 
             # add next vertex
             polyedge.append(w)
+
+        if flipped:
+            polyedge = list(reversed(polyedge))
 
         return polyedge
 
@@ -259,6 +267,9 @@ class QuadMesh(Mesh):
 
     def polyedge_vertices(self, pkey):
         return self.attributes['polyedges'][pkey]
+
+    def polyedge_edges(self, pkey):
+        return pairwise(self.polyedge_vertices(pkey))
 
     def singularity_polyedges(self):
         """Collect the polyedges connected to singularities.
