@@ -6,6 +6,7 @@ from math import floor
 from operator import itemgetter
 
 from compas.geometry import centroid_points
+from compas.geometry import Polyline
 
 from compas_quad.datastructures import Mesh
 
@@ -270,6 +271,9 @@ class QuadMesh(Mesh):
 
     def polyedge_edges(self, pkey):
         return pairwise(self.polyedge_vertices(pkey))
+
+    def polyedge_midpoint(self, pkey):
+        return Polyline([self.vertex_coordinates(vkey) for vkey in self.polyedge_vertices(pkey)]).point(0.5)
 
     def singularity_polyedges(self):
         """Collect the polyedges connected to singularities.
