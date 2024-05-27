@@ -10,7 +10,7 @@ from compas.geometry import Polyline
 
 from compas_quad.datastructures import Mesh
 
-from compas.utilities import pairwise
+from compas.itertools import pairwise
 from compas_quad.utilities import list_split
 
 

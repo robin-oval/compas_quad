@@ -4,9 +4,9 @@ from __future__ import division
 
 from compas.topology import breadth_first_paths
 
-from compas.datastructures import mesh_substitute_vertex_in_faces
+from compas_quad.datastructures import mesh_substitute_vertex_in_faces
 
-from compas.utilities import pairwise
+from compas.itertools import pairwise
 from compas_quad.utilities import sublist_from_to_items_in_closed_list
 
 __all__ = [

@@ -2,7 +2,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-from compas.datastructures import mesh_substitute_vertex_in_faces
+from compas_quad.datastructures import mesh_substitute_vertex_in_faces
 
 __all__ = ['add_strip_lizard']
 
@@ -51,7 +51,7 @@ def add_strip_lizard(mesh, lizard, movements):
         return nbrs[j:] + nbrs[:i] if i < j else nbrs[j:i]
 
     def add_vertex_on_edge(mesh, u, v, t=0.5):
-        xyz = mesh.edge_point(u, v, t=t)
+        xyz = mesh.edge_point((u, v), t=t)
         return mesh.add_vertex(attr_dict={key: value for key, value in zip('xyz', xyz)})
 
     def list_replace_item(items, old_item, new_items):
@@ -126,7 +126,7 @@ def add_strip_lizard(mesh, lizard, movements):
         
         # close strip if possible
         if mesh.halfedge[head][body] == new_fkeys[0]:
-            print('!')
+            # print('!')
             body_left, body_right = head, body
             fkey = new_fkeys[-1]
             face_vertices = list_replace_item(mesh.face_vertices(fkey).copy(), body, [body_right, body_left])
@@ -134,8 +134,7 @@ def add_strip_lizard(mesh, lizard, movements):
             mesh.add_face(face_vertices, fkey=fkey)
 
         else:
-            print('!!')
-            print(mesh.number_of_vertices())
+            # print('!!')
             nbrs = mesh.vertex_neighbors(body, ordered=True)
             body_left = add_vertex_on_edge(mesh, body, nbrs[-1], t=0.1)
             body_right = add_vertex_on_edge(mesh, body, nbrs[0], t=0.1)
@@ -149,8 +148,7 @@ def add_strip_lizard(mesh, lizard, movements):
             mesh.delete_face(fkey)
             mesh.add_face(face_vertices, fkey=fkey)
             mesh.delete_vertex(body)
-            print(mesh.number_of_vertices())
-    print(tail, body, head, mesh.face_vertices(4), mesh.face_vertices(5))
+
     return tail, body, head
 
 

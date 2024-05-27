@@ -9,7 +9,8 @@ import compas
 from compas_quad.datastructures import QuadMesh
 
 from compas_quad.utilities import list_split
-from compas.utilities import geometric_key
+from compas.tolerance import Tolerance
+geometric_key = Tolerance().geometric_key
 
 from distutils.version import LooseVersion
 

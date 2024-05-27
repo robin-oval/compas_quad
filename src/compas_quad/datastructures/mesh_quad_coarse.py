@@ -5,17 +5,17 @@ from __future__ import division
 from copy import deepcopy
 from math import floor, ceil
 
-from compas.topology import adjacency_from_edges
+from compas.topology import vertex_adjacency_from_edges
 from compas.topology import connected_components
 
 from compas.geometry import discrete_coons_patch
 from compas.geometry import vector_average
 
-from compas.datastructures import meshes_join_and_weld
+# from compas.datastructures import meshes_join_and_weld
 
 from compas_quad.datastructures import Mesh, QuadMesh
 
-from compas.utilities import pairwise
+from compas.itertools import pairwise
 
 
 __all__ = ['CoarseQuadMesh']
@@ -73,7 +73,7 @@ class CoarseQuadMesh(QuadMesh):
         adj_edges = {(f1, f2) for f1 in quad_mesh.faces() for f2 in quad_mesh.face_neighbors(
             f1) if f1 < f2 and quad_mesh.face_adjacency_halfedge(f1, f2) not in singularity_edges}
         coarse_faces_children = {}
-        for i, connected_faces in enumerate(connected_components(adjacency_from_edges(adj_edges))):
+        for i, connected_faces in enumerate(connected_components(vertex_adjacency_from_edges(adj_edges))):
             mesh = Mesh.from_vertices_and_faces(
                 vertices, [faces[face] for face in connected_faces])
             coarse_faces_children[i] = [vkey for vkey in reversed(
@@ -186,7 +186,7 @@ class CoarseQuadMesh(QuadMesh):
             A target length.
         """
         self.strip_density(skey, int(ceil(vector_average(
-            [self.edge_length(u, v) for u, v in self.strip_edges(skey) if u != v]) / t)))
+            [self.edge_length((u, v)) for u, v in self.strip_edges(skey) if u != v]) / t)))
 
     def set_strip_density_func(self, skey, func, func_args):
         """Set the strip densities based on a function.
@@ -245,7 +245,7 @@ class CoarseQuadMesh(QuadMesh):
     # densification
     # --------------------------------------------------------------------------
 
-    def densification(self):
+    def densification_old(self):
         """Generate a denser quad mesh from the coarse quad mesh and its strip densities.
         """
         edge_strip = {}
@@ -256,14 +256,87 @@ class CoarseQuadMesh(QuadMesh):
 
         face_meshes = {}
         for fkey in self.faces():
-            ab, bc, cd, da = [[self.edge_point(u, v, float(i) / float(self.strip_density(edge_strip[(u, v)])))
+            ab, bc, cd, da = [[self.edge_point((u, v), float(i) / float(self.strip_density(edge_strip[(u, v)])))
                                for i in range(0, self.strip_density(edge_strip[(u, v)]) + 1)] for u, v in self.face_halfedges(fkey)]
             vertices, faces = discrete_coons_patch(
                 ab, bc, list(reversed(cd)), list(reversed(da)))
             face_meshes[fkey] = QuadMesh.from_vertices_and_faces(
                 vertices, faces)
 
-        self.dense_mesh(meshes_join_and_weld(list(face_meshes.values())))
+        dense_mesh = QuadMesh()
+        for fmesh in face_meshes.values():
+            dense_mesh.join(fmesh)
+        dense_mesh.weld()
+        self.dense_mesh(dense_mesh)
+        # self.dense_mesh(meshes_join_and_weld(list(face_meshes.values())))
+
+    def densification(self):
+        """Generate a denser quad mesh from the coarse quad mesh and its strip densities.
+        """
+        edge_strip = {}
+        for skey, edges in self.strips(data=True):
+            for u, v in edges:
+                edge_strip[(u, v)] = skey
+                edge_strip[(v, u)] = skey
+
+        parent2child = {}   
+        face_meshes = {}
+        for fkey in self.faces():
+            ab, bc, cd, da = [[self.edge_point((u, v), float(i) / float(self.strip_density(edge_strip[(u, v)]))) for i in range(0, self.strip_density(edge_strip[(u, v)]) + 1)] for u, v in self.face_halfedges(fkey)]
+            vertices, faces = discrete_coons_patch(list(reversed(da)), list(reversed(cd)), bc, ab)
+            face_meshes[fkey] = QuadMesh.from_vertices_and_faces(vertices, faces)
+            u, v, w, x = [edge[0] for edge in self.face_halfedges(fkey)]
+            n, m = self.strip_density(edge_strip[(u, v)]) + 1, self.strip_density(edge_strip[(v, w)]) + 1
+            parent2child[(u, v)] = (fkey, list(range(n)))
+            parent2child[(v, w)] = (fkey, [n - 1 + k * n for k in range(m)])
+            parent2child[(w, x)] = (fkey, list(reversed(list(range(len(vertices) - n, len(vertices))))))
+            parent2child[(x, u)] = (fkey, list(reversed([k * n for k in range(m)])))
+        
+        vkeys_flatt = {}
+        vcount = 0
+        for fkey, fmesh in face_meshes.items():
+            for i, vkey in enumerate(fmesh.vertices()):
+                vkeys_flatt[(fkey, vkey)] = vcount + i
+            vcount += fmesh.number_of_vertices()
+        
+        weld_map = {}
+        for (u, v), (fkey, vkeys) in parent2child.items():
+            for i, vkey in enumerate(vkeys):
+                if i == 0:
+                    min_fkey = min(self.vertex_faces(u))
+                    nbr = self.face_vertex_descendant(min_fkey, u)
+                    fkey2, vkeys2 = parent2child[(u, nbr)]
+                    weld_map[vkeys_flatt[(fkey, vkey)]] = (vkeys_flatt[(fkey2, vkeys2[0])], face_meshes[fkey2].vertex_attributes(vkeys2[0]))
+                elif i == len(vkeys) - 1:
+                    min_fkey = min(self.vertex_faces(v))
+                    nbr = self.face_vertex_descendant(min_fkey, v)
+                    fkey2, vkeys2 = parent2child[(v, nbr)]
+                    weld_map[vkeys_flatt[(fkey, vkey)]] = (vkeys_flatt[(fkey2, vkeys2[0])], face_meshes[fkey2].vertex_attributes(vkeys2[0]))
+                else:
+                    if self.is_edge_on_boundary((u, v)):
+                        weld_map[vkeys_flatt[(fkey, vkey)]] = (vkeys_flatt[(fkey, vkey)], face_meshes[fkey].vertex_attributes(vkey))
+                    else:
+                        alt_fkey, alt_vkeys = parent2child[(v, u)]
+                        if alt_fkey > fkey:
+                            weld_map[vkeys_flatt[(fkey, vkey)]] = (vkeys_flatt[(fkey, vkey)], face_meshes[fkey].vertex_attributes(vkey))
+                        else:
+                            weld_map[vkeys_flatt[(fkey, vkey)]] = (vkeys_flatt[(alt_fkey, alt_vkeys[len(alt_vkeys) - 1 - i])], face_meshes[alt_fkey].vertex_attributes(alt_vkeys[len(alt_vkeys) - 1 - i]))
+        
+        for (fkey, vkey), vkey2 in vkeys_flatt.items():
+            if vkey2 not in weld_map:
+                weld_map[vkey2] = (vkey2, face_meshes[fkey].vertex_attributes(vkey))
+
+        dense_mesh = QuadMesh()
+        for fkey, fmesh in face_meshes.items():
+            for vkey in fmesh.vertices():
+                vkey2, attr = weld_map[vkeys_flatt[(fkey, vkey)]]
+                if not dense_mesh.has_vertex(vkey2):
+                    dense_mesh.add_vertex(key=vkey2, attr_dict=attr)
+        for fkey, fmesh in face_meshes.items():
+            for subfkey in fmesh.faces():
+                dense_mesh.add_face([weld_map[vkeys_flatt[(fkey, vkey)]][0] for vkey in fmesh.face_vertices(subfkey)])
+        self.dense_mesh(dense_mesh)
+
 
     # def geometrical_densification(self):
     #   """Generate a denser quad mesh from the coarse quad mesh and its strip densities.
