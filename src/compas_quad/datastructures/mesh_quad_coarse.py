@@ -302,26 +302,19 @@ class CoarseQuadMesh(QuadMesh):
         weld_map = {}
         for (u, v), (fkey, vkeys) in parent2child.items():
             for i, vkey in enumerate(vkeys):
-                if i == 0:
-                    min_fkey = min(self.vertex_faces(u))
-                    nbr = self.face_vertex_descendant(min_fkey, u)
-                    fkey2, vkeys2 = parent2child[(u, nbr)]
-                    weld_map[vkeys_flatt[(fkey, vkey)]] = (vkeys_flatt[(fkey2, vkeys2[0])], face_meshes[fkey2].vertex_attributes(vkeys2[0]))
-                elif i == len(vkeys) - 1:
-                    min_fkey = min(self.vertex_faces(v))
-                    nbr = self.face_vertex_descendant(min_fkey, v)
-                    fkey2, vkeys2 = parent2child[(v, nbr)]
-                    weld_map[vkeys_flatt[(fkey, vkey)]] = (vkeys_flatt[(fkey2, vkeys2[0])], face_meshes[fkey2].vertex_attributes(vkeys2[0]))
-                else:
-                    if self.is_edge_on_boundary((u, v)):
-                        weld_map[vkeys_flatt[(fkey, vkey)]] = (vkeys_flatt[(fkey, vkey)], face_meshes[fkey].vertex_attributes(vkey))
-                    else:
-                        alt_fkey, alt_vkeys = parent2child[(v, u)]
-                        if alt_fkey > fkey:
-                            weld_map[vkeys_flatt[(fkey, vkey)]] = (vkeys_flatt[(fkey, vkey)], face_meshes[fkey].vertex_attributes(vkey))
-                        else:
-                            weld_map[vkeys_flatt[(fkey, vkey)]] = (vkeys_flatt[(alt_fkey, alt_vkeys[len(alt_vkeys) - 1 - i])], face_meshes[alt_fkey].vertex_attributes(alt_vkeys[len(alt_vkeys) - 1 - i]))
-        
+                fkey_s, vkey_s = fkey, vkey
+                if i == 0 or i == len(vkeys) - 1:
+                    end = u if i == 0 else v
+                    min_fkey = min(self.vertex_faces(end))
+                    nbr = self.face_vertex_descendant(min_fkey, end)
+                    fkey2, vkeys2 = parent2child[(end, nbr)]
+                    (fkey_s, vkey_s) = (fkey2, vkeys2[0])
+                elif not self.is_edge_on_boundary((u, v)):
+                    alt_fkey, alt_vkeys = parent2child[(v, u)]
+                    if alt_fkey < fkey:
+                        (fkey_s, vkey_s) = (alt_fkey, alt_vkeys[len(alt_vkeys) - 1 - i])
+                weld_map[vkeys_flatt[(fkey, vkey)]] = (vkeys_flatt[(fkey_s, vkey_s)], face_meshes[fkey_s].vertex_attributes(vkey_s))
+
         for (fkey, vkey), vkey2 in vkeys_flatt.items():
             if vkey2 not in weld_map:
                 weld_map[vkey2] = (vkey2, face_meshes[fkey].vertex_attributes(vkey))
