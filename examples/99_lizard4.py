@@ -8,7 +8,7 @@ from compas.datastructures import Mesh
 
 from compas_quad.datastructures import CoarsePseudoQuadMesh
 
-from compas_quad.grammar.addition2 import add_strip_lizard, add_strip_lizard_2
+from compas_quad.grammar.addition2 import add_strip_lizard, add_strip_lizard_2, lizard_atp
 
 from compas_quad.grammar.lizard import string_generation_brute, string_generation_random, string_generation_structured, string_generation_evolution
 
@@ -51,34 +51,6 @@ def postprocessing(mesh):
 input_mesh_refinement = 1  # densify the input 1-face quad mesh
 output_mesh_refinement = 3  # densify the ouput quad mesh
 
-# for 'given' production
-add_given_strings = False
-given_strings = ['atpta']
-
-# for 'brute' force enumeration
-add_brute_strings = False
-brute_string_characters = '01'
-brute_string_length = 8
-
-# for 'random' generation
-add_random_strings = True
-random_string_characters = '01'
-random_string_number = 10
-random_string_length = 10
-random_string_ratios = [0.5, 0.5]
-
-# for 'structured' construction
-add_structured_strings = False
-structured_string_characters = 'atp'
-structured_string_number = 100
-structured_string_length = 5
-
-# random evolution
-add_evolution_strings = False
-evolution_string_characters = '01'
-evolution_string_number = 50
-evolution_string_length = 10
-
 postprocess = True
 densify = True
 array = False
@@ -115,20 +87,10 @@ lizard = (tail, body, head)
 print('lizard initial position', lizard)
 
 # produce strings
-strings = []
-if add_given_strings:
-    strings += given_strings
-if add_brute_strings:
-    strings += list(string_generation_brute(brute_string_characters, brute_string_length))
-if add_random_strings:
-    strings += list(string_generation_random(random_string_characters, random_string_number, random_string_length, ratios=random_string_ratios))
-if add_structured_strings:
-    strings += list(string_generation_structured(structured_string_characters, structured_string_number, structured_string_length))
-if add_evolution_strings:
-    strings += list(string_generation_evolution(evolution_string_characters, evolution_string_number, evolution_string_length))
-print('{} strings: {}'.format(len(strings), strings))
-
-strings = ['t', 'tt', 'ttt', 'tttt']
+# strings = ['t', 'tt', 'ttt', 'tttt']
+# strings = ['ata', 'atta', 'attta', 'atttta']
+strings = ['attatatattatta']
+# strings = ['attatpatatptatta']
 
 # apply
 t0 = time()
@@ -138,7 +100,8 @@ for k, string in enumerate(strings):
 
     # modifiy topology
     mesh = CoarsePseudoQuadMesh.from_vertices_and_faces(*mesh0.to_vertices_and_faces())
-    tail, body, head = add_strip_lizard_2(mesh, lizard, string)
+    # tail, body, head = add_strip_lizard_2(mesh, lizard, string)
+    tail, body, head = lizard_atp(mesh, lizard, string)
     
     poles = []
     for fkey in mesh.faces():
